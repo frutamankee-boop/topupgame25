@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin - Sky25 Store</title>
+  <style>
+    body {font-family: Arial, sans-serif; background:#111; color:#fff; margin:0; padding:20px;}
+    h1 {color:#3498db;}
+    table {width:100%; border-collapse: collapse; margin-top:20px;}
+    th, td {padding:10px; border:1px solid #444; text-align:left;}
+    th {background:#3498db;}
+    select, button {padding:5px 10px; margin:2px; border:none; border-radius:5px; cursor:pointer;}
+    button {background:#3498db; color:white;}
+    button:hover {background:#2980b9;}
+    .status-pending {color:orange; font-weight:bold;}
+    .status-paid {color:yellow; font-weight:bold;}
+    .status-done {color:lightgreen; font-weight:bold;}
+  </style>
+</head>
+<body>
+  <h1>Admin Panel - Sky25 Store</h1>
+  <p id="statusInfo">Memuat data transaksi...</p>
+
+  <table id="transaksiTable">
+    <thead>
+      <tr>
+        <th>Game</th>
+        <th>ID/Username</th>
+        <th>Paket</th>
+        <th>Kontak</th>
+        <th>Pembayaran</th>
+        <th>Status</th>
+        <th>Aksi</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { getFirestore, collection, onSnapshot, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    // 🔥 Firebase Config
+    const firebaseConfig = {
+      apiKey: "AIzaSyBbDU0baVjNVQ7fTqQOWk-veGyU4zxyWxM",
+      authDomain: "topupgame-f508b.firebaseapp.com",
+      projectId: "topupgame-f508b",
+      storageBucket: "topupgame-f508b.firebasestorage.app",
+      messagingSenderId: "180478528774",
+      appId: "1:180478528774:web:80936f95f3785d8938e287"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const adminEmails = ["frutamankee@gmail.com"];
+
+    // Cek login admin
+    onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        alert("Login dulu di index.html");
+        window.location.href = "index.html";
+        return;
+      }
+      if (!adminEmails.includes(user.email)) {
+        alert("Bukan admin!");
+        window.location.href = "index.html";
+        return;
+      }
+      listenTransaksi();
+    });
+
+    // 🔔 Listener realtime transaksi
+    function listenTransaksi() {
+      const tbody = document.querySelector("#transaksiTable tbody");
+      const statusInfo = document.getElementById("statusInfo");
+
+      onSnapshot(collection(db, "transaksi"), (snapshot) => {
+        tbody.innerHTML = "";
+        if (snapshot.empty) {
+          statusInfo.textContent = "Belum ada transaksi.";
+          return;
+        }
+        statusInfo.textContent = `Total transaksi: ${snapshot.size}`;
+
+        snapshot.forEach((docSnap) => {
+          const data = docSnap.data();
+          const tr = document.createElement("tr");
+
+          tr.innerHTML = `
+            <td>${data.game}</td>
+            <td>${data.playerId || data.username || "-"}</td>
+            <td>${data.paket}</td>
+            <td>${data.contact}</td>
+            <td>${data.payment}</td>
+            <td class="status-${data.status}">
+              <select id="status-${docSnap.id}">
+                <option value="pending" ${data.status==="pending"?"selected":""}>Pending</option>
+                <option value="paid" ${data.status==="paid"?"selected":""}>Paid</option>
+                <option value="done" ${data.status==="done"?"selected":""}>Done</option>
+              </select>
+            </td>
+            <td><button onclick="updateStatus('${docSnap.id}')">Simpan</button></td>
+          `;
+
+          tbody.appendChild(tr);
+        });
+      });
+    }
+
+    // 🔄 Update status transaksi
+    window.updateStatus = async function(id) {
+      const status = document.getElementById(`status-${id}`).value;
+      await updateDoc(doc(db, "transaksi", id), { status });
+      alert("Status transaksi diperbarui!");
+    }
+  </script>
+</body>
+</html>
