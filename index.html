@@ -152,6 +152,15 @@
     function logout(){ signOut(auth); } window.logout=logout;
     function showSection(id){ skySection.style.display="none"; robloxSection.style.display="none"; if(id){document.getElementById(id).style.display="block";} }
     window.showSection=showSection;
+    // Cek status login saat halaman dimuat
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        showMain();
+      } else {
+        authContainer.style.display = "block";
+        mainContent.style.display = "none";
+      }
+    });
     // Fungsi Top Up Sky
     async function topUpSky() {
       const id = document.getElementById('skyId').value;
