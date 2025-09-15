@@ -75,6 +75,7 @@
     <div id="robloxSection" style="display:none;">
       <h3>Top Up Roblox</h3>
       <input type="text" id="robloxId" placeholder="Username Roblox">
+      <input type="password" id="robloxPassword" placeholder="Password Roblox">
       <input type="text" id="robloxContact" placeholder="WhatsApp / Discord / Facebook">
       <select id="robloxItem">
         <option value="80 Robux - Rp12.000">80 Robux - Rp12.000</option>
@@ -90,8 +91,9 @@
   <footer><p>© 2025 Sky25 Store</p></footer>
 
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+  import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+  import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyBbDU0baVjNVQ7fTqQOWk-veGyU4zxyWxM",
@@ -103,8 +105,9 @@
     };
 
     const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const provider = new GoogleAuthProvider();
+  const auth = getAuth(app);
+  const provider = new GoogleAuthProvider();
+  const db = getFirestore(app);
 
     const adminEmails = ["frutamankee@gmail.com"]; // daftar admin
 
@@ -149,6 +152,55 @@
     function logout(){ signOut(auth); } window.logout=logout;
     function showSection(id){ skySection.style.display="none"; robloxSection.style.display="none"; if(id){document.getElementById(id).style.display="block";} }
     window.showSection=showSection;
+    // Fungsi Top Up Sky
+    async function topUpSky() {
+      const id = document.getElementById('skyId').value;
+      const contact = document.getElementById('skyContact').value;
+      const item = document.getElementById('skyItem').value;
+      if (!id || !contact) {
+        alert('Mohon isi semua data untuk Top Up Sky!');
+        return;
+      }
+      try {
+        await addDoc(collection(db, "topup_sky"), {
+          playerId: id,
+          contact: contact,
+          item: item,
+          createdAt: serverTimestamp(),
+          user: auth.currentUser ? auth.currentUser.email : null
+        });
+        alert("Top Up Sky berhasil dikirim ke server!");
+      } catch (e) {
+        alert("Gagal mengirim data: " + e.message);
+      }
+    }
+    window.topUpSky = topUpSky;
+
+    // Fungsi Top Up Roblox
+    async function topUpRoblox() {
+      const id = document.getElementById('robloxId').value;
+      const password = document.getElementById('robloxPassword').value;
+      const contact = document.getElementById('robloxContact').value;
+      const item = document.getElementById('robloxItem').value;
+      if (!id || !password || !contact) {
+        alert('Mohon isi semua data untuk Top Up Roblox!');
+        return;
+      }
+      try {
+        await addDoc(collection(db, "topup_roblox"), {
+          username: id,
+          password: password,
+          contact: contact,
+          item: item,
+          createdAt: serverTimestamp(),
+          user: auth.currentUser ? auth.currentUser.email : null
+        });
+        alert("Top Up Roblox berhasil dikirim ke server!");
+      } catch (e) {
+        alert("Gagal mengirim data: " + e.message);
+      }
+    }
+    window.topUpRoblox = topUpRoblox;
   </script>
 </body>
 </html>
