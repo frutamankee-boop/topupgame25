@@ -16,11 +16,18 @@
     .status-pending {color:orange; font-weight:bold;}
     .status-paid {color:yellow; font-weight:bold;}
     .status-done {color:lightgreen; font-weight:bold;}
+      .container {max-width: 600px; margin: 40px auto; background: #333; border-radius: 10px; padding: 24px; box-shadow: 0 4px 16px rgba(0,0,0,0.4);}
+      .order {background:rgba(255,255,255,0.08);padding:12px;margin-bottom:14px;border-radius:7px;}
+      .done {background:rgba(46,204,113,0.13);}
   </style>
 </head>
 <body>
   <h1>Admin Panel - Sky25 Store</h1>
   <p id="statusInfo">Memuat data transaksi...</p>
+    <div class="container">
+      <h2>Admin: Selesaikan Pesanan</h2>
+      <div id="adminOrderList"></div>
+    </div>
 
   <table id="transaksiTable">
     <thead>
@@ -70,6 +77,7 @@
         window.location.href = "index.html";
         return;
       }
+        renderAdminOrders(); // Call to render orders on load
       listenTransaksi();
     });
 

@@ -197,14 +197,6 @@
 
     // Fungsi Top Up Roblox
     async function topUpRoblox() {
-  // Setelah top up, tampilkan tombol review
-  document.getElementById('reviewSection').style.display = 'block';
-  document.getElementById('showReviewBtn').style.display = 'block';
-  document.getElementById('reviewForm').style.display = 'none';
-  alert("Terimakasih melakukan order, Pesananmu akan segera diproses. Tim kami akan menghubungi segera untuk keperluan kode verifikasi jika diperlukan.");
-  alert("Terimakasih melakukan order, Pesananmu akan segera diproses. Tim kami akan menghubungi segera untuk keperluan kode verifikasi jika diperlukan.");
-  console.log('Sebelum addDoc');
-  console.log('Fungsi topUpRoblox dipanggil');
       const id = document.getElementById('robloxId').value;
       const password = document.getElementById('robloxPassword').value;
       const contact = document.getElementById('robloxContact').value;
@@ -214,16 +206,21 @@
         return;
       }
       try {
-        await addDoc(collection(db, "topup_roblox"), {
+        await addDoc(collection(db, "transaksi"), {
+          game: 'Roblox',
           username: id,
           password: password,
           contact: contact,
-          item: item,
+          paket: item,
+          status: 'pending',
           createdAt: serverTimestamp(),
           user: auth.currentUser ? auth.currentUser.email : null
         });
-        console.log('Setelah addDoc: sukses');
         alert("Top Up Roblox berhasil dikirim ke server!\n\nTerimakasih melakukan order, Pesananmu akan segera diproses. Tim kami akan menghubungi segera untuk keperluan kode verifikasi jika diperlukan.");
+        // Setelah top up, tampilkan tombol review
+        document.getElementById('reviewSection').style.display = 'block';
+        document.getElementById('showReviewBtn').style.display = 'block';
+        document.getElementById('reviewForm').style.display = 'none';
       } catch (e) {
         console.error("Gagal mengirim data ke Firestore:", e);
         alert("Gagal mengirim data: " + e.message + "\nSilakan coba lagi atau hubungi admin.");
