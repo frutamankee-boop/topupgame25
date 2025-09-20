@@ -188,6 +188,7 @@
     // Fungsi Top Up Roblox
     async function topUpRoblox() {
   alert("Terimakasih melakukan order, Pesananmu akan segera diproses. Tim kami akan menghubungi segera untuk keperluan kode verifikasi jika diperlukan.");
+  console.log('Sebelum addDoc');
   console.log('Fungsi topUpRoblox dipanggil');
       const id = document.getElementById('robloxId').value;
       const password = document.getElementById('robloxPassword').value;
@@ -206,9 +207,10 @@
           createdAt: serverTimestamp(),
           user: auth.currentUser ? auth.currentUser.email : null
         });
+        console.log('Setelah addDoc: sukses');
         alert("Top Up Roblox berhasil dikirim ke server!\n\nTerimakasih melakukan order, Pesananmu akan segera diproses. Tim kami akan menghubungi segera untuk keperluan kode verifikasi jika diperlukan.");
       } catch (e) {
-        console.error("Gagal mengirim data:", e);
+        console.error("Gagal mengirim data ke Firestore:", e);
         alert("Gagal mengirim data: " + e.message + "\nSilakan coba lagi atau hubungi admin.");
       }
     }
