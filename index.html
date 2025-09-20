@@ -82,10 +82,20 @@
         <option value="400 Robux - Rp50.000">400 Robux - Rp50.000</option>
       </select>
       <button onclick="topUpRoblox()">Top Up Roblox</button>
+      <div id="reviewSection" style="display:none; margin-top:16px;">
+        <button id="showReviewBtn" onclick="showReviewForm()">Beri Review</button>
+        <form id="reviewForm" style="display:none; margin-top:8px;" onsubmit="submitReview(event)">
+          <textarea id="reviewText" placeholder="Tulis testimoni..." style="width:100%;height:60px;"></textarea>
+          <button type="submit">Kirim Review</button>
+        </form>
+      </div>
     </div>
 
     <h3 id="riwayat">Riwayat</h3>
     <ul id="riwayatList"></ul>
+  <div id="orderList" style="margin-top:24px;"></div>
+  <div id="testimoniList" style="margin-top:24px;"></div>
+  <div id="testimoniList" style="margin-top:24px;"></div>
   </div>
 
   <footer><p>© 2025 Sky25 Store</p></footer>
@@ -187,6 +197,11 @@
 
     // Fungsi Top Up Roblox
     async function topUpRoblox() {
+  // Setelah top up, tampilkan tombol review
+  document.getElementById('reviewSection').style.display = 'block';
+  document.getElementById('showReviewBtn').style.display = 'block';
+  document.getElementById('reviewForm').style.display = 'none';
+  alert("Terimakasih melakukan order, Pesananmu akan segera diproses. Tim kami akan menghubungi segera untuk keperluan kode verifikasi jika diperlukan.");
   alert("Terimakasih melakukan order, Pesananmu akan segera diproses. Tim kami akan menghubungi segera untuk keperluan kode verifikasi jika diperlukan.");
   console.log('Sebelum addDoc');
   console.log('Fungsi topUpRoblox dipanggil');
@@ -215,6 +230,81 @@
       }
     }
     window.topUpRoblox = topUpRoblox;
+
+    // Tampilkan form review
+    function showReviewForm() {
+      document.getElementById('showReviewBtn').style.display = 'none';
+      document.getElementById('reviewForm').style.display = 'block';
+    }
+    window.showReviewForm = showReviewForm;
+
+    // Submit review
+    function submitReview(e) {
+      e.preventDefault();
+      const text = document.getElementById('reviewText').value.trim();
+      if (!text) {
+        alert('Testimoni tidak boleh kosong!');
+        return;
+      }
+      const list = document.getElementById('testimoniList');
+      const item = document.createElement('div');
+      item.style.marginBottom = '12px';
+      item.style.background = 'rgba(255,255,255,0.08)';
+      item.style.padding = '10px';
+      item.style.borderRadius = '6px';
+      item.innerHTML = `<b>Testimoni:</b><br>${text}`;
+      list.prepend(item);
+      document.getElementById('reviewForm').reset();
+      document.getElementById('reviewForm').style.display = 'none';
+      document.getElementById('showReviewBtn').style.display = 'block';
+    }
+    window.submitReview = submitReview;
+
+    // ====== Fitur Pesanan & Review Sederhana ======
+    let orders = [
+      {id: 1, game: 'Roblox', user: 'testuser', item: '80 Robux', status: 'pending', review: null},
+      {id: 2, game: 'Sky', user: 'skyuser', item: '60 Candle', status: 'pending', review: null}
+    ];
+
+    function renderOrders() {
+      const orderDiv = document.getElementById('orderList');
+      orderDiv.innerHTML = '<h3>Daftar Pesanan</h3>';
+      orders.forEach(order => {
+        let html = `<div style='background:rgba(255,255,255,0.08);padding:10px;margin-bottom:10px;border-radius:6px;'>
+          <b>${order.game}</b> - ${order.item} <br>User: ${order.user}<br>Status: <span id='status-${order.id}'>${order.status}</span><br>`;
+        if(order.status === 'pending') {
+          html += `<button onclick='selesaikanOrder(${order.id})'>Selesaikan</button>`;
+        } else if(order.status === 'selesai' && !order.review) {
+          html += `<button onclick='showReviewForm(${order.id})'>Beri Review</button>`;
+        }
+        if(order.review) {
+          html += `<div style='margin-top:8px;background:rgba(0,0,0,0.1);padding:6px;border-radius:4px;'><b>Testimoni:</b><br>${order.review}</div>`;
+        }
+        html += `</div>`;
+        orderDiv.innerHTML += html;
+      });
+    }
+
+    window.selesaikanOrder = function(id) {
+      const idx = orders.findIndex(o=>o.id===id);
+      if(idx>-1) {
+        orders[idx].status = 'selesai';
+        renderOrders();
+      }
+    }
+
+    window.showReviewForm = function(id) {
+      const review = prompt('Tulis testimoni untuk pesanan ini:');
+      if(review && review.trim()) {
+        const idx = orders.findIndex(o=>o.id===id);
+        if(idx>-1) {
+          orders[idx].review = review.trim();
+          renderOrders();
+        }
+      }
+    }
+
+    renderOrders();
   </script>
 </body>
 </html>
